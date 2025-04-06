@@ -3,31 +3,31 @@
 
 - Clone Repo
 
-´´´bash
+```bash
 https://github.com/morok101st/ArmaReforgerStats.git
-´´´
+```
 
 - change directory
 
-´´´bash
+```bash
 cd ArmaReforgerStats
-´´´
+```
 
 - Build metrics image
 
-´´´bash
+```bash
 docker compose build
-´´´
+```
 
 - Start stack and check logs
 
-´´´bash
+```bash
 docker compose up -d && docker compose logs -f
-´´´
+```
 
 - Open browser to url
 
-http://<ServerIP>:3000
+http://ServerIP:3000
 
 default username and password for grafana (change it)
 

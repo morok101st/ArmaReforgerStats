@@ -26,7 +26,7 @@ docker compose build
 docker compose up -d && docker compose logs -f
 ```
 
-## Open browser for grafana url
+## Grafana configuration
 
 - http://ServerIP:3000
 - default username and password for grafana (change it)

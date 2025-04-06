@@ -18,7 +18,7 @@ docker compose build
 
 - **Adjust the Path in docker-compose.yaml:** Replace `/data/armar_ds/data/logs` with path where your Reforger logs are stored.
 
-- **Server Configuration:** Ensure that in your Arma Reforger server configuration, the `-logStats` option is set to `2000`. Time in ms. Reforger generate new stats log entry.
+- **Server Configuration:** Ensure that in your Arma Reforger server configuration, the `-logStats` option is set to `2000` (t in ms). Reforger generate new log entry for stats every 2 sec.
 
 ## Start stack and check logs
 

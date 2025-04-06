@@ -49,3 +49,6 @@ docker compose up -d && docker compose logs -f
 
 - ex: use default dashboard from grafana.com (https://grafana.com/grafana/dashboards/1860-node-exporter-full/)
 
+## credits
+
+https://github.com/SebastianUnterscheutz/ArmaReforgerMetrics

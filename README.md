@@ -1,37 +1,38 @@
-# Installation
+# README
 
 
-- Clone Repo
+## Clone Repo
 
 ```bash
 git clone https://github.com/morok101st/ArmaReforgerStats.git
-```
-
-- change directory
-
-```bash
 cd ArmaReforgerStats
 ```
 
-- Build metrics image
+## Build metrics image
 
 ```bash
 docker compose build
 ```
 
-- Start stack and check logs
+## Set LOG path Arma Reforger
+
+- **Adjust the Path:** Replace `/data/armar_ds/data/logs` with path where your Reforger logs stored.
+
+- **Server Configuration:** Ensure that in your Arma Reforger server configuration, the `-logStats` option is set to `2000`. This ensures that the logs are captured correctly and in sufficient detail.
+
+## Start stack and check logs
 
 ```bash
 docker compose up -d && docker compose logs -f
 ```
 
-- Open browser for grafana url
+## Open browser for grafana url
 
 http://ServerIP:3000
 
 default username and password for grafana (change it)
 
-- select data source prometheus
+### select data source prometheus
   
   connections -> data sources -> add (select Prometheus)
   
@@ -39,13 +40,13 @@ default username and password for grafana (change it)
   
   button -> save and test 
 
-- import reforger-dashboard.json to grafana
+### import reforger-dashboard.json to grafana
 
   dashboard -> new -> import
   
   provide the file or copy/paste the json content
   
-- import node-exporter dashboard
+### import node-exporter dashboard
   dashboard -> new -> import
   
   use ID -> insert 1860 -> select data source

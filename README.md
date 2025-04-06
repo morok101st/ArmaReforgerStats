@@ -4,7 +4,7 @@
 - Clone Repo
 
 ```bash
-https://github.com/morok101st/ArmaReforgerStats.git
+git clone https://github.com/morok101st/ArmaReforgerStats.git
 ```
 
 - change directory

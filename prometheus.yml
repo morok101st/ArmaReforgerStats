@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 2s  # Abfrageintervall für Metriken
+
+scrape_configs:
+  # Arma Metrics
+  - job_name: 'arma-metrics-py'
+    static_configs:
+      - targets: ['arma-metrics-py:8880']
+  # Node Exporter (nur wenn du Host-Metriken brauchst)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']   # da node-exporter mit network_mode=host läuft

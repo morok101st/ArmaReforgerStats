@@ -1,0 +1,77 @@
+
+services:
+  # -------------------------------------------
+  # 1) Arma Reforger Metrics - Python
+  # -------------------------------------------
+  arma-metrics-py:
+    container_name: arma-metrics-py
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: arma-metrics-py:latest
+    volumes:
+      # Host-Logs -> Container (/app/logs)
+      - /data/armar_ds/data/logs:/app/logs
+      # Persistierte Offset-Datei
+      - ./offsets_data/offsets.json:/app/offsets.json
+
+  # -------------------------------------------
+  # 2) Prometheus
+  # -------------------------------------------
+  prometheus-py:
+    container_name: prometheus-py
+    restart: always
+    image: prom/prometheus
+    volumes:
+      - './prometheus.yml:/etc/prometheus/prometheus.yml'
+      - prometheus-data-py:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=14d'
+      - '--storage.tsdb.min-block-duration=2h'
+      - '--storage.tsdb.max-block-duration=2h'
+    depends_on:
+      - arma-metrics-py
+   # für Fehlersuche
+   # ports:
+   #   - "9090:9090"
+
+  # -------------------------------------------
+  # 3) Grafana
+  # -------------------------------------------
+  grafana-py:
+    container_name: grafana-py
+    restart: always
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data-py:/var/lib/grafana
+    depends_on:
+      - prometheus-py
+
+  # -------------------------------------------
+  # 4) Node Exporter (optional)
+  # -------------------------------------------
+  node-exporter:
+    container_name: node-exporter
+    image: prom/node-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+    # Falls du Metriken nur vom Host willst, 
+    # brauchst du kein depends_on
+    # 
+    depends_on:
+      - prometheus-py
+
+
+volumes:
+  prometheus-data-py:
+  grafana-data-py:

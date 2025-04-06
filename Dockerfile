@@ -1,22 +1,19 @@
 # ---- Dockerfile ----
 
-# 1) Basisimage mit Python
+# 1) Base Image with Python
 FROM python:3.9-slim
 
-# 2) Verzeichnis für unseren Code
+# 2) Create a working directory for our code
 WORKDIR /app
 
-# 3) Benötigte Python-Packages (Flask)
+# 3) Install necessary Python packages (Flask)
 RUN pip install flask
 
-# 4) Kopiere den Quellcode ins Image
+# 4) Copy the source code into the image
 COPY main.py /app/main.py
 
-# 5) Falls du das Log-Verzeichnis oder offset-Datei persistent halten willst, machst du ein Volume:
-# VOLUME /app/logs
-
-# 6) Flask hört auf 8880 (Prometheus ruft http://container:8880/metrics ab)
+# 6) Expose port 8880 so Flask can be accessed (Prometheus will scrape http://container:8880/metrics)
 EXPOSE 8880
 
-# 7) Starte main.py
+# 7) Define the container's startup command to run our Python script
 CMD ["python", "/app/main.py"]

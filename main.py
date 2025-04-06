@@ -8,22 +8,22 @@ from flask import Flask, Response, jsonify, request
 from collections import defaultdict
 
 # ------------------------------------------------
-# Globale Variablen (analog zu Go-Code)
+# global
 # ------------------------------------------------
 
 app = Flask(__name__)
 
-# Datenstruktur für die zuletzt gelesenen Offsets pro Datei
+# offsets
 last_processed_offsets = {}
 
-# Globale Zähler
+# global counter
 total_disconnects = 0
 disconnect_errors = 0
 total_connects = 0
 connection_timeouts = 0
 total_reservations = 0
 
-# Letzte gelesene Metriken (vergleichbar mit LogEntry in Go)
+# init metrics
 last_metrics = {
     "fps": 0.0,
     "players": 0,
@@ -45,7 +45,7 @@ last_metrics = {
 }
 
 # ------------------------------------------------
-# Regex-Muster (identisch zum Go-Code)
+# regex definition
 # ------------------------------------------------
 fps_regex = re.compile(r"FPS:\s([0-9.]+)")
 player_regex = re.compile(r"Player:\s([0-9]+)")
@@ -63,7 +63,7 @@ connect_regex = re.compile(r"Player connected:")
 reserve_slot_regex = re.compile(r"Reserving slot for player")
 
 # ------------------------------------------------
-# Hilfsfunktionen
+# helpers
 # ------------------------------------------------
 def load_offsets_from_disk(filename="offsets.json"):
     """ Beim Start werden ggf. gespeicherte Offsets aus einer Datei geladen,
@@ -74,7 +74,6 @@ def load_offsets_from_disk(filename="offsets.json"):
     try:
         with open(filename, "r", encoding="utf-8") as f:
             data = json.load(f)
-            # data ist ein dict { "pfad/zu/console.log": offset }
             last_processed_offsets = {k: int(v) for k, v in data.items()}
     except Exception as e:
         logging.warning(f"Could not load offsets from disk: {e}")
@@ -107,9 +106,9 @@ def get_last_log_folders(logs_dir: str, limit: int):
         full_path = os.path.join(logs_dir, entry)
         if os.path.isdir(full_path) and entry.startswith("logs_"):
             all_dirs.append(entry)
-    # Sortierung: z. B. nach Datum/Zeit im Verzeichnisnamen – hier einfach alphabetisch
+    # sort data
     all_dirs.sort()
-    # Nur die letzten `limit` Ordner zurückgeben
+    # return last value
     return all_dirs[-limit:]
 
 
@@ -118,15 +117,13 @@ def get_last_log_data():
     global total_disconnects, disconnect_errors, total_connects
     global connection_timeouts, total_reservations
 
-    # Zwischenvariablen für die RTT-Berechnung
     rtt_values = []
     pkt_loss_values = []
 
     logs_dir = "logs"
     folders = get_last_log_folders(logs_dir, 5)
 
-    # Lokale Kopie des letzten Log-Standes
-    local_metrics = dict(last_metrics)  # eine Kopie der globalen Metriken
+    local_metrics = dict(last_metrics)
 
     for folder in folders:
         log_file = os.path.join(logs_dir, folder, "console.log")
@@ -180,17 +177,17 @@ def get_last_log_data():
                     if connect_regex.search(line):
                         total_connects += 1
 
-                    # reservierung
+                    # reserve
                     if reserve_slot_regex.search(line):
                         total_reservations += 1
 
-                    # Fahrzeuge
+                    # vehicles
                     match = veh_regex.search(line)
                     if match:
                         local_metrics["veh_count"] = int(match.group(1))
                         local_metrics["veh_extra_count"] = int(match.group(2))
 
-                    # Projektil-Daten
+                    # projectile-data
                     match = proj_regex.search(line)
                     if match:
                         local_metrics["proj_shells"] = int(match.group(1))
@@ -198,7 +195,7 @@ def get_last_log_data():
                         local_metrics["proj_grenades"] = int(match.group(3))
                         local_metrics["proj_total"] = int(match.group(4))
 
-                    # Streaming
+                    # streaming
                     match = streaming_regex.search(line)
                     if match:
                         local_metrics["streaming_dynam"] = int(match.group(1))
@@ -208,28 +205,27 @@ def get_last_log_data():
                         local_metrics["streaming_del"] = int(match.group(5))
                         local_metrics["streaming_bump"] = int(match.group(6))
 
-                # Neue Position abfragen und speichern
+                # find new position and save
                 current_offset = f.tell()
                 save_offset_for_file(log_file, current_offset)
 
         except Exception as e:
             logging.warning(f"Fehler beim Lesen der Datei {log_file}: {e}")
 
-    # Durchschnittliche RTT und Paketverlust
+    # RTT and packets
     if rtt_values:
         local_metrics["avg_rtt"] = sum(rtt_values) / len(rtt_values)
     if pkt_loss_values:
         local_metrics["avg_pktloss"] = sum(pkt_loss_values) / len(pkt_loss_values)
 
-    # Aktualisiere das globale Dictionary
+    # renew data
     for k, v in local_metrics.items():
         last_metrics[k] = v
 
-    # Alle globalen Zähler bleiben erhalten
-    # => am Ende persistieren wir die Offsets
+    # persistent on disk
     persist_offsets_to_disk()
 
-    return dict(last_metrics)  # zurückgeben
+    return dict(last_metrics)
 
 # ------------------------------------------------
 # Flask /metrics Endpoint
@@ -238,10 +234,10 @@ def get_last_log_data():
 @app.route("/metrics", methods=["GET"])
 def metrics_handler():
     """ Bietet die gesammelten Werte als Prometheus-kompatiblen Text an. """
-    data = get_last_log_data()  # aktualisiert die Werte
+    data = get_last_log_data()  # refresh data
 
     lines = []
-    # Jede Metrik als Prometheus-Format ausgeben
+    # formats for prometheus
 
     # FPS
     lines.append("# HELP server_fps Die FPS des Servers")
@@ -289,7 +285,7 @@ def metrics_handler():
     lines.append("# TYPE server_proj_total gauge")
     lines.append(f"server_proj_total {data['proj_total']}")
 
-    # Streaming
+    # streaming
     lines.append("# HELP server_streaming_dynam Anzahl der dynamischen Streaming-Objekte")
     lines.append("# TYPE server_streaming_dynam gauge")
     lines.append(f"server_streaming_dynam {data['streaming_dynam']}")
@@ -314,7 +310,7 @@ def metrics_handler():
     lines.append("# TYPE server_streaming_bump gauge")
     lines.append(f"server_streaming_bump {data['streaming_bump']}")
 
-    # Disconnect, Connect, Reservations
+    # connects
     lines.append("# HELP server_disconnects Anzahl der Disconnect-Ereignisse")
     lines.append("# TYPE server_disconnects counter")
     lines.append(f"server_disconnects {total_disconnects}")
@@ -344,11 +340,11 @@ def index():
     return "Arma Reforger Metrics Python - check /metrics"
 
 # ------------------------------------------------
-# Hauptstart
+# start main
 # ------------------------------------------------
 if __name__ == "__main__":
-    # Optional: Offsets laden (falls du den Startzustand auch bei Container-Restarts beibehalten willst)
+    # Optional: load offsets (persistent container restarts)
     load_offsets_from_disk()
-    # Starte den Flask-Server
+    # start flask
     logging.info("Starte Arma Reforger Metrics (Python) auf Port 8880")
     app.run(host="0.0.0.0", port=8880)

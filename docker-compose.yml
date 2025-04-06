@@ -11,9 +11,9 @@ services:
       dockerfile: Dockerfile
     image: arma-metrics-py:latest
     volumes:
-      # Host-Logs -> Container (/app/logs)
+      # host-logs -> container (/app/logs)
       - /data/armar_ds/data/logs:/app/logs
-      # Persistierte Offset-Datei
+      # persistent offset-file
       - ./offsets_data/offsets.json:/app/offsets.json
 
   # -------------------------------------------
@@ -33,7 +33,7 @@ services:
       - '--storage.tsdb.max-block-duration=2h'
     depends_on:
       - arma-metrics-py
-   # für Fehlersuche
+   # enable for issues, troubleshoot
    # ports:
    #   - "9090:9090"
 
@@ -65,9 +65,6 @@ services:
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
-    # Falls du Metriken nur vom Host willst, 
-    # brauchst du kein depends_on
-    # 
     depends_on:
       - prometheus-py
 

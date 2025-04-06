@@ -32,6 +32,7 @@ http://ServerIP:3000
 default username and password for grafana (change it)
 
 - select data source prometheus
+  
   connections -> data sources -> add (select Prometheus)
   
   connectionURL -> http://prometheus-py:9090
@@ -39,6 +40,7 @@ default username and password for grafana (change it)
   button -> save and test 
 
 - import reforger-dashboard.json to grafana
+
   dashboard -> new -> import
   
   provide the file or copy/paste the json content

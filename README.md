@@ -16,7 +16,7 @@ docker compose build
 
 ## Set LOG path Arma Reforger
 
-- **Adjust the Path:** Replace `/data/armar_ds/data/logs` with path where your Reforger logs stored.
+- **Adjust the Path:** Replace `/data/armar_ds/data/logs` with path where your Reforger logs are stored.
 
 - **Server Configuration:** Ensure that in your Arma Reforger server configuration, the `-logStats` option is set to `2000`. This ensures that the logs are captured correctly and in sufficient detail.
 
